@@ -99,8 +99,7 @@ static int FlushBlock(unsigned port, unsigned char slot, unsigned char *BlockBuf
                 memcpy(&BlockBuffer[CachePageLen * FlushList[i].BlockPageOffset], FlushList[i].buffer, CachePageLen);
             }
 
-            if (result >= 0)
-                result = WriteBlock(port, slot, CachePageLen, CacheBlockSize, BlockNum, BlockBuffer);
+            result = WriteBlock(port, slot, CachePageLen, CacheBlockSize, BlockNum, BlockBuffer);
         }
     }
 

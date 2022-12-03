@@ -187,7 +187,7 @@ static int ParseLanguageFile(char **array, FILE *file, unsigned int ExpectedNumL
     {
         if (LinesLoaded != ExpectedNumLines)
         {
-            printf("ParseLanguageFile: Mismatched number of lines (%u/%d)\n", LinesLoaded, ExpectedNumLines);
+            printf("ParseLanguageFile: Mismatched number of lines (%d/%u)\n", LinesLoaded, ExpectedNumLines);
             result = -1;
         }
     }
@@ -230,7 +230,7 @@ static int ParseFontListFile(char **array, FILE *file, unsigned int ExpectedNumL
     {
         if (LinesLoaded != ExpectedNumLines)
         {
-            printf("ParseFontListFile: Mismatched number of lines (%u/%d)\n", LinesLoaded, ExpectedNumLines);
+            printf("ParseFontListFile: Mismatched number of lines (%d/%u)\n", LinesLoaded, ExpectedNumLines);
             result = -1;
         }
     }
@@ -619,7 +619,7 @@ int InitializeUI(int BufferFont)
         language = LANGUAGE_ENGLISH;
     memset(LangStringWrapTable, 0, sizeof(LangStringWrapTable));
 
-    DEBUG_PRINTF("InitializeUI: language is: %u\n", language);
+    DEBUG_PRINTF("InitializeUI: language is: %d\n", language);
 
     if (GetConsoleRegion() == CONSOLE_REGION_JAPAN)
     {
@@ -636,11 +636,11 @@ int InitializeUI(int BufferFont)
 
     while ((result = LoadLanguageStrings(language)) == -ENODEV)
     {
-        DEBUG_PRINTF("LoadLanguageStrings(%u): %d\n", language, result);
+        DEBUG_PRINTF("LoadLanguageStrings(%d): %d\n", language, result);
         WaitForDevice();
     }
 
-    DEBUG_PRINTF("LoadLanguageStrings(%u) result: %d\n", language, result);
+    DEBUG_PRINTF("LoadLanguageStrings(%d) result: %d\n", language, result);
     if (result != 0)
     {
         if ((result = LoadDefaultLanguageStrings()) != 0)

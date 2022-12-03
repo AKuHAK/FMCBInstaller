@@ -44,7 +44,7 @@ extern int InstallLockSema;
 static int InitMCInfo(int port, int slot);
 static int SignKELF(void *buffer, int size, unsigned char port, unsigned char slot);
 static void GetKbitAndKc(void *buffer, u8 *Kbit, u8 *Kc);
-static int SetKbitAndKc(void *buffer, u8 *Kbit, u8 *Kc);
+static void SetKbitAndKc(void *buffer, u8 *Kbit, u8 *Kc);
 static int TwinSignKELF(const char *RootFolder, void *buffer, int size, unsigned char port, unsigned char slot);
 static char GetMGFolderLetter(unsigned char region);
 static const char *GetMountParams(const char *command, char *BlockDevice);
@@ -415,7 +415,7 @@ static void GetKbitAndKc(void *buffer, u8 *Kbit, u8 *Kc)
     memcpy(Kc, &((u8 *)buffer)[offset + 16], 16);
 }
 
-static int SetKbitAndKc(void *buffer, u8 *Kbit, u8 *Kc)
+static void SetKbitAndKc(void *buffer, u8 *Kbit, u8 *Kc)
 {
     int offset;
     unsigned char OffsetByte;
@@ -825,13 +825,13 @@ int CleanupTarget(int port, int slot)
 {
     char PathToFolder[66];
 
-    sprintf(PathToFolder, "mc%u:BIEXEC-SYSTEM", port);
+    sprintf(PathToFolder, "mc%d:BIEXEC-SYSTEM", port);
     DeleteFolder(PathToFolder);
-    sprintf(PathToFolder, "mc%u:BAEXEC-SYSTEM", port);
+    sprintf(PathToFolder, "mc%d:BAEXEC-SYSTEM", port);
     DeleteFolder(PathToFolder);
-    sprintf(PathToFolder, "mc%u:BEEXEC-SYSTEM", port);
+    sprintf(PathToFolder, "mc%d:BEEXEC-SYSTEM", port);
     DeleteFolder(PathToFolder);
-    sprintf(PathToFolder, "mc%u:BCEXEC-SYSTEM", port);
+    sprintf(PathToFolder, "mc%d:BCEXEC-SYSTEM", port);
     DeleteFolder(PathToFolder);
 
     return 0;
@@ -2148,7 +2148,7 @@ int HasOldFMCBConfigFile(int port, int slot)
     FILE *file;
     char path[25];
 
-    sprintf(path, "mc%u:SYS-CONF/FREEMCB.CNF", port);
+    sprintf(path, "mc%d:SYS-CONF/FREEMCB.CNF", port);
     if ((file = fopen(path, "r")) != NULL)
     {
         result = 1;
@@ -2189,7 +2189,7 @@ int HasOldMultiInstall(int port, int slot)
     FILE *file;
     char path[27];
 
-    sprintf(path, "mc%u:SYS-CONF/FMCBUINST.dat", port);
+    sprintf(path, "mc%d:SYS-CONF/FMCBUINST.dat", port);
     if ((file = fopen(path, "rb")) != NULL)
     {
         result = 1;
@@ -2197,7 +2197,7 @@ int HasOldMultiInstall(int port, int slot)
     }
     else
     {
-        sprintf(path, "mc%u:SYS-CONF/uninstall.dat", port);
+        sprintf(path, "mc%d:SYS-CONF/uninstall.dat", port);
         if ((file = fopen(path, "rb")) != NULL)
         {
             result = 1;
@@ -2253,11 +2253,10 @@ static inline int HandleLegacyFMCBUninstallFile(FILE *file, char *MGFolderLetter
 
 static inline int HandleFMCBUninstallFile(FILE *file, char *MGFolderLetter, unsigned short int *BootROMVersion, struct FileAlias **LocalMcFileAlias)
 {
-    int result, i;
+    int result = 0, i;
     unsigned char num_entries;
     char FMCBInstConRegion, RomVersion[5];
 
-    result = 0;
     fseek(file, sizeof(struct UninstallationDataFileHeader), SEEK_SET);
     if (fread(RomVersion, 1, 4, file) == 4 && fread(&FMCBInstConRegion, 1, 1, file) == 1 && fread(&num_entries, 1, 1, file) == 1)
     {
@@ -2334,7 +2333,7 @@ int CleanupMultiInstallation(int port, int slot)
     // Reboot the IOP to load MCTOOLS.IRX in. This will also prevent MCMAN's cache from storing outdated content.
     InitSemaID = IopInitStart(IOP_MOD_MCTOOLS | IOP_REBOOT);
 
-    sprintf(path, "mc%u:SYS-CONF/FMCBUINST.dat", port);
+    sprintf(path, "mc%d:SYS-CONF/FMCBUINST.dat", port);
     memset(&FileHeader, 0, sizeof(struct UninstallationDataFileHeader));
 
     WaitSema(InitSemaID);
@@ -2357,7 +2356,7 @@ int CleanupMultiInstallation(int port, int slot)
 
     if ((file = fopen(path, "rb")) == NULL)
     {
-        sprintf(path, "mc%u:SYS-CONF/uninstall.dat", port);
+        sprintf(path, "mc%d:SYS-CONF/uninstall.dat", port);
         if ((file = fopen(path, "rb")) != NULL)
             FMCBUninstallFileVersion = 0;
     }
@@ -2483,34 +2482,34 @@ int CleanupMultiInstallation(int port, int slot)
             switch (MGFolderLetter)
             {
                 case 'I':
-                    sprintf(path, "mc%u:BAEXEC-SYSTEM", port);
+                    sprintf(path, "mc%d:BAEXEC-SYSTEM", port);
                     DeleteFolder(path);
-                    sprintf(path, "mc%u:BEEXEC-SYSTEM", port);
+                    sprintf(path, "mc%d:BEEXEC-SYSTEM", port);
                     DeleteFolder(path);
-                    sprintf(path, "mc%u:BCEXEC-SYSTEM", port);
+                    sprintf(path, "mc%d:BCEXEC-SYSTEM", port);
                     DeleteFolder(path);
                     break;
                 case 'A':
-                    sprintf(path, "mc%u:BIEXEC-SYSTEM", port);
+                    sprintf(path, "mc%d:BIEXEC-SYSTEM", port);
                     DeleteFolder(path);
-                    sprintf(path, "mc%u:BEEXEC-SYSTEM", port);
+                    sprintf(path, "mc%d:BEEXEC-SYSTEM", port);
                     DeleteFolder(path);
-                    sprintf(path, "mc%u:BCEXEC-SYSTEM", port);
+                    sprintf(path, "mc%d:BCEXEC-SYSTEM", port);
                     DeleteFolder(path);
                     break;
                 case 'E':
-                    sprintf(path, "mc%u:BAEXEC-SYSTEM", port);
+                    sprintf(path, "mc%d:BAEXEC-SYSTEM", port);
                     DeleteFolder(path);
-                    sprintf(path, "mc%u:BIEXEC-SYSTEM", port);
+                    sprintf(path, "mc%d:BIEXEC-SYSTEM", port);
                     DeleteFolder(path);
-                    sprintf(path, "mc%u:BCEXEC-SYSTEM", port);
+                    sprintf(path, "mc%d:BCEXEC-SYSTEM", port);
                     DeleteFolder(path);
                 case 'C':
-                    sprintf(path, "mc%u:BAEXEC-SYSTEM", port);
+                    sprintf(path, "mc%d:BAEXEC-SYSTEM", port);
                     DeleteFolder(path);
-                    sprintf(path, "mc%u:BIEXEC-SYSTEM", port);
+                    sprintf(path, "mc%d:BIEXEC-SYSTEM", port);
                     DeleteFolder(path);
-                    sprintf(path, "mc%u:BEEXEC-SYSTEM", port);
+                    sprintf(path, "mc%d:BEEXEC-SYSTEM", port);
                     DeleteFolder(path);
                     break;
             }
@@ -2608,7 +2607,7 @@ static int GenerateUninstallFile(int port, int slot)
     char path[27], SysExecFileFullPath[66];
     struct UninstallationDataFileHeader FileHeader;
 
-    sprintf(path, "mc%u:SYS-CONF/FMCBUINST.dat", port);
+    sprintf(path, "mc%d:SYS-CONF/FMCBUINST.dat", port);
 
     result = 0;
     if ((file = fopen(path, "wb")) != NULL)
@@ -3323,7 +3322,7 @@ static int LoadOSDFile(const char *path, void **pBuffer, int *pSize, int *pRSize
 
 int WriteAPPSPartitionAttributes(void)
 { // This signifies the end of the installation process.
-    u8 *buffer;
+    // u8 *buffer;
     t_PartAttrTab *AttributeTable;
     struct AttribFile files[NUM_OSD_FILES_ENTS];
     u32 ZoneSize;

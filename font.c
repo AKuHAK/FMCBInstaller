@@ -167,7 +167,7 @@ int FontReset(struct UIDrawGlobal *gsGlobal)
     if ((result = ResetThisFont(gsGlobal, &GS_FTFont)) == 0)
         result = ResetThisFont(gsGlobal, &GS_sub_FTFont);
 
-    return 0;
+    return result;
 }
 
 static int InitFontSupportCommon(struct UIDrawGlobal *gsGlobal, Font_t *font)
@@ -638,4 +638,5 @@ int FontGetGlyphWidth(struct UIDrawGlobal *gsGlobal, wint_t character)
             width = GetGlyphWidth(gsGlobal, &GS_FTFont, character, 1);
         }
     }
+    return width;
 }

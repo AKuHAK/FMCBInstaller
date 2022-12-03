@@ -84,7 +84,7 @@ int card_auth_write(int port, int slot, const void *buffer, int arg3, int comman
 {
     int i, result;
     sio2_transfer_data_t sio2packet;
-    unsigned char wrbuf[14], rdbuf[14];
+    unsigned char wrbuf[14], rdbuf[14]{};
 
     sio2packet.in  = wrbuf;
     sio2packet.out = rdbuf;
@@ -220,7 +220,7 @@ int card_auth_60(int port, int slot)
 {
     int result;
     sio2_transfer_data_t sio2packet;
-    unsigned char wrbuf[5], rdbuf[5];
+    unsigned char wrbuf[5], rdbuf[5]{};
 
     sio2packet.in  = wrbuf;
     sio2packet.out = rdbuf;
@@ -280,7 +280,7 @@ int card_auth_key_change(int port, int slot, int command)
 {
     int result;
     sio2_transfer_data_t sio2packet;
-    unsigned char wrbuf[5], rdbuf[5];
+    unsigned char wrbuf[5], rdbuf[5]{};
 
     sio2packet.in  = wrbuf;
     sio2packet.out = rdbuf;
@@ -341,7 +341,7 @@ int card_auth2(int port, int slot, int arg3, int command)
 {
     int result;
     sio2_transfer_data_t sio2packet;
-    unsigned char wrbuf[5], rdbuf[5];
+    unsigned char wrbuf[5], rdbuf[5]{};
 
     sio2packet.in  = wrbuf;
     sio2packet.out = rdbuf;
@@ -401,7 +401,7 @@ int card_auth2(int port, int slot, int arg3, int command)
 int card_auth(int port, int slot, int arg3, int command)
 {
     sio2_transfer_data_t sio2packet;
-    unsigned char wrbuf[5], rdbuf[5];
+    unsigned char wrbuf[5], rdbuf[5]{};
     int result;
 
     sio2packet.in  = wrbuf;

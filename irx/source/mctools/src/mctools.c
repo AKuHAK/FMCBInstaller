@@ -216,7 +216,7 @@ static int GetCardSpecs(int port, int slot, u16 *PageSize, u16 *BlockSize, int *
     int result;
 
     result = McGetCardSpec(port, slot, PageSize, BlockSize, CardSize, &flags);
-    DEBUG_PRINTF("GetCardSpecs: port: %d, slot: %d, PageSize: %u, BlockSize: %u, CardSize: %u\n", port, slot, *PageSize, *BlockSize, *CardSize);
+    DEBUG_PRINTF("GetCardSpecs: port: %d, slot: %d, PageSize: %u, BlockSize: %u, CardSize: %d\n", port, slot, *PageSize, *BlockSize, *CardSize);
 
     return result;
 }
@@ -225,7 +225,7 @@ static int GetFatTableIndexData(unsigned char port, unsigned char slot, unsigned
 {
     unsigned int NumEntriesPerFatCluster, *IndirectFatIndexTable, *FatTable;
     unsigned int IndirectFATIndex, IndirectFATIndexOffset, IndirectFATDoubleIndex;
-    int result;
+    int result = -1;
 
     if (index >= SuperBlock->clusters)
     {
@@ -235,7 +235,6 @@ static int GetFatTableIndexData(unsigned char port, unsigned char slot, unsigned
     /*	Unlike FAT12/16/32, the FAT table is not contiguous. ifc_list contains the indexes of the FAT clusters,
         hence double-indexing is required for accessing the clusters within the FAT. */
 
-    result                  = -1;
     NumEntriesPerFatCluster = SuperBlock->pages_per_cluster * SuperBlock->page_len / 4; /* Calculate the number of FAT entries contained within each FAT cluster. */
     IndirectFATIndex        = index / NumEntriesPerFatCluster;                          /* Calculate the index within the indirect FAT table, that the FAT record resides in. */
     IndirectFATIndexOffset  = IndirectFATIndex % NumEntriesPerFatCluster;               /* Calculate the offset of the indirect FAT index table to retrieve from (It contains the FAT cluster number). */
@@ -540,7 +539,7 @@ static int ScanThroughDirEnt(unsigned char port, unsigned char slot, unsigned sh
 
         if ((result = ReadPageCached(*PageNum + *LogicalPageNum, PageBuffer)) < 0)
         {
-            DEBUG_PRINTF("Read fault. Page: %d Code: %d\n", *PageNum + *LogicalPageNum, result);
+            DEBUG_PRINTF("Read fault. Page: %u Code: %d\n", *PageNum + *LogicalPageNum, result);
             break;
         }
 
