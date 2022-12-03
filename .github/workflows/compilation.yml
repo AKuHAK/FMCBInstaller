@@ -1,0 +1,30 @@
+name: CI-compile
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    name: FMCBInstaller compilation
+    runs-on: ubuntu-latest
+    container: ps2dev/ps2dev:v1.0
+    # instead of "ps2dev/ps2dev:latest" you can use different tags, for example for old projects you can use "ps2dev/ps2dev:v1.0"
+    steps:
+      - name: Install dependencies
+        run: |
+          apk add build-base git zip
+
+      - uses: actions/checkout@v3
+
+      - name: Compile project
+        run: |
+          make
+      # commands for compiling your project
+      - name: Upload artifacts
+        if: ${{ success() }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: FMCBInstaller
+          path: |
+            FMCBInstaller.elf

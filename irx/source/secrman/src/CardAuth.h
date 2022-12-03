@@ -2,7 +2,7 @@ void ResetMcHandlers(void);
 void SetMcCommandHandler(McCommandHandler_t handler);
 McCommandHandler_t GetMcCommandHandler(void);
 void SetMcDevIDHandler(McDevIDHandler_t handler);
-McDevIDHandler_t GetMcDevIDHandler(void);	//unused.
+McDevIDHandler_t GetMcDevIDHandler(void); // unused.
 int McDeviceIDToCNum(int port, int slot);
 int SendMcCommand(int port, int slot, sio2_transfer_data_t *sio2packet);
 int card_auth(int port, int slot, int arg3, int command);
