@@ -2082,13 +2082,17 @@ static int CopyFiles(const char *RootFolder, unsigned char port, unsigned char s
                     {
                         result = SyncMCFileWrite(McFileFD, PrevFileSize, buffer);
                         if (result < 0)
+                        {
+                            DEBUG_PRINTF("Error SyncMCFileWrite file %d. Code: %d.\n", McFileFD, result);
                             break;
+                        }
                     }
 
                     if (FileCopyList[i].flags & FILE_IS_KELF)
                     { /* Sign the KELF file before writing it. */
                         if (!(flags & INSTALL_MODE_FLAG_CROSS_PSX))
                         {
+                            DEBUG_PRINTF("Now signing file %s.\n", FileCopyList[i].source);
                             if ((result = SignKELF(NextFileBuf, size, port, slot)) < 0)
                             {
                                 DEBUG_PRINTF("Error signing file %s. Code: %d.\n", FileCopyList[i].source, result);
@@ -2112,7 +2116,9 @@ static int CopyFiles(const char *RootFolder, unsigned char port, unsigned char s
                     /* Point the buffer pointer to the buffer containing the next file. */
                     buffer = NextFileBuf;
 
+                    DEBUG_PRINTF("mcOpen: port %d, slot %d, target %s \n", port, slot, FileCopyList[i].target);
                     mcOpen(port, slot, FileCopyList[i].target, O_WRONLY | O_CREAT | O_TRUNC);
+                    DEBUG_PRINTF("McFileFD before sync: %d\n", McFileFD);
                     mcSync(0, NULL, &McFileFD);
 
                     if (McFileFD < 0)

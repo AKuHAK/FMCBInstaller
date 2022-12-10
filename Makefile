@@ -29,6 +29,7 @@ all:
 	$(MAKE) $(EE_BIN)
 
 clean:
+	$(MAKE) clean -C irx/source/mctools
 	rm -f $(EE_BIN) $(EE_BIN_REL) $(EE_OBJS) *_irx.c background.c buttons.c IOPRP_img.c
 
 background.c: resources/background.png
@@ -65,7 +66,9 @@ SECRSIF_irx.c: $(IRX_DIR)/secrsif.irx
 	bin2c $(IRX_DIR)/secrsif.irx SECRSIF_irx.c SECRSIF_irx
 
 MCTOOLS_irx.c: $(IRX_DIR)/mctools.irx
-	bin2c $(IRX_DIR)/mctools.irx MCTOOLS_irx.c MCTOOLS_irx
+	$(MAKE) -C irx/source/mctools
+	bin2c irx/source/mctools/irx/mctools.irx MCTOOLS_irx.c MCTOOLS_irx
+	# bin2c $(IRX_DIR)/mctools.irx MCTOOLS_irx.c MCTOOLS_irx
 
 USBD_irx.c: $(PS2SDK)/iop/irx/usbd.irx
 	bin2c $(PS2SDK)/iop/irx/usbd.irx USBD_irx.c USBD_irx

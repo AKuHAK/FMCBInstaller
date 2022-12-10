@@ -22,7 +22,15 @@ int IsDEX;
 
 extern struct irx_export_table _exp_secrman;
 
-/* static void _printf(const char *format, ...); */
+#define DEBUG_TTY_FEEDBACK /* Comment out to disable debugging messages */
+
+#ifdef DEBUG_TTY_FEEDBACK
+#define DEBUG_PRINTF(args...) printf(args)
+#else
+#define DEBUG_PRINTF(args...)
+#endif
+
+/* static void DEBUG_PRINTF(const char *format, ...); */
 
 struct arg2struct
 {                   // sp+0x48 to 0x98 in LOADFILE of boot ROM v1.01J.
@@ -112,7 +120,7 @@ static int func_00000d14(void *icvps2);
 static int Uses_ICVPS2(const void *buffer);
 
 // 0x00000000
-/* static void _printf(const char *format, ...){
+/* static void DEBUG_PRINTF(const char *format, ...){
 
 } */
 
@@ -123,23 +131,23 @@ static int func_0000077c(int port, int slot, void *buffer)
 
     if (GetMcCommandHandler() != NULL)
     {
-        _printf("card decrypt start\n");
+        DEBUG_PRINTF("card decrypt start\n");
 
         if (card_auth(port, slot, 0xF1, 0x40))
         {
-            _printf("card decrypt 0x40\n");
+            DEBUG_PRINTF("card decrypt 0x40\n");
 
             if (card_auth_write(port, slot, buffer, 0xF1, 0x41))
             {
-                _printf("card decrypt 0x41\n");
+                DEBUG_PRINTF("card decrypt 0x41\n");
 
                 if (card_auth(port, slot, 0xF1, 0x42))
                 {
-                    _printf("card decrypt 0x42\n");
+                    DEBUG_PRINTF("card decrypt 0x42\n");
 
                     if (card_auth_read(port, slot, buffer, 0xF1, 0x43))
                     {
-                        _printf("card decrypt 0x43\n");
+                        DEBUG_PRINTF("card decrypt 0x43\n");
                         result = 1;
                     }
                     else
@@ -194,13 +202,13 @@ int SecrCardBootHeader(int port, int slot, void *buffer, SecrBitTable_t *BitTabl
                                 }
                                 else
                                 {
-                                    _printf("Cannot read BIT\n");
+                                    DEBUG_PRINTF("Cannot read BIT\n");
                                     result = 0;
                                 }
                             }
                             else
                             {
-                                _printf("Set Header failed\n");
+                                DEBUG_PRINTF("Set Header failed\n");
                                 result = 0;
                             }
                         }
@@ -221,7 +229,7 @@ int SecrCardBootHeader(int port, int slot, void *buffer, SecrBitTable_t *BitTabl
     }
     else
     {
-        _printf("mcCommand isn't assigned\n");
+        DEBUG_PRINTF("mcCommand isn't assigned\n");
         result = 0;
     }
 
@@ -310,7 +318,7 @@ void *SecrCardBootFile(int port, int slot, void *buffer)
                 {
                     if (!SecrCardBootBlock((void *)((unsigned int)buffer + offset), (void *)((unsigned int)buffer + offset), BitTableData->blocks[i].size))
                     {
-                        _printf("SecrCardBootFile: failed\n");
+                        DEBUG_PRINTF("SecrCardBootFile: failed\n");
                         return NULL;
                     }
                 }
@@ -322,7 +330,7 @@ void *SecrCardBootFile(int port, int slot, void *buffer)
     }
     else
     {
-        _printf("SecrCardBootFile: Cannot decrypt header\n");
+        DEBUG_PRINTF("SecrCardBootFile: Cannot decrypt header\n");
         result = NULL;
     }
 
@@ -344,13 +352,13 @@ int SecrDiskBootHeader(void *buffer, SecrBitTable_t *BitTable, s32 *pSize)
         }
         else
         {
-            _printf("Cannot read BIT\n");
+            DEBUG_PRINTF("Cannot read BIT\n");
             result = 0;
         }
     }
     else
     {
-        _printf("Set Header failed\n");
+        DEBUG_PRINTF("Set Header failed\n");
         result = 0;
     }
 
@@ -391,7 +399,7 @@ void *SecrDiskBootFile(void *buffer)
                 {
                     if (!SecrDiskBootBlock((void *)((unsigned int)buffer + offset), (void *)((unsigned int)buffer + offset), BitTableData->blocks[i].size))
                     {
-                        _printf("SecrDiskBootFile: failed\n");
+                        DEBUG_PRINTF("SecrDiskBootFile: failed\n");
                         return NULL;
                     }
                 }
@@ -403,7 +411,7 @@ void *SecrDiskBootFile(void *buffer)
     }
     else
     {
-        _printf("SecrDiskBootFile: Cannot decrypt header\n");
+        DEBUG_PRINTF("SecrDiskBootFile: Cannot decrypt header\n");
         result = NULL;
     }
 
@@ -712,17 +720,17 @@ int SecrAuthCard(int port, int slot, int cnum)
 
     if (GetMcCommandHandler() != NULL)
     {
-        _printf("SecrAuthCard start\n");
+        DEBUG_PRINTF("SecrAuthCard start\n");
 
         memset(MechaChallenge1, 0, sizeof(MechaChallenge1));
 
         if (card_auth_60(port, slot))
         {
-            _printf("card auth 0x60\n");
+            DEBUG_PRINTF("card auth 0x60\n");
 
             if (mechacon_auth_80(cnum))
             {
-                _printf("mechacon auth 0x80\n");
+                DEBUG_PRINTF("mechacon auth 0x80\n");
 
                 /*	The normal secrman_for_dex module does not have this step. With this step, card authentication does not work on a DEX.
                     On a CEX, it appears that card authentication still works without this step, but I don't know whether there are any side-effects.	*/
@@ -732,131 +740,131 @@ int SecrAuthCard(int port, int slot, int cnum)
 #endif
                     card_auth_key_change(port, slot, 1))
                 {
-                    _printf("card auth key change\n");
+                    DEBUG_PRINTF("card auth key change\n");
 
                     if (card_auth(port, slot, 0xF0, 0x00))
                     {
-                        _printf("card auth 0x00\n");
+                        DEBUG_PRINTF("card auth 0x00\n");
 
                         if (mechacon_auth_81(cnum))
                         {
-                            _printf("mechacon auth 0x81\n");
+                            DEBUG_PRINTF("mechacon auth 0x81\n");
 
                             if (card_auth_read(port, slot, CardIV, 0xF0, 0x01))
                             {
-                                _printf("card auth 0x01\n");
+                                DEBUG_PRINTF("card auth 0x01\n");
 
                                 if (card_auth_read(port, slot, CardMaterial, 0xF0, 0x02))
                                 {
-                                    _printf("card auth 0x02\n");
+                                    DEBUG_PRINTF("card auth 0x02\n");
 
                                     if (mechacon_auth_82(CardIV, CardMaterial))
                                     {
-                                        _printf("mechacon auth 0x82\n");
+                                        DEBUG_PRINTF("mechacon auth 0x82\n");
 
                                         if (card_auth(port, slot, 0xF0, 0x03))
                                         {
-                                            _printf("card auth 0x03\n");
+                                            DEBUG_PRINTF("card auth 0x03\n");
 
                                             if (card_auth_read(port, slot, CardNonce, 0xF0, 0x04))
                                             {
-                                                _printf("card auth 0x04\n");
+                                                DEBUG_PRINTF("card auth 0x04\n");
 
                                                 if (mechacon_auth_83(CardNonce))
                                                 {
-                                                    _printf("mechacon auth 0x83\n");
+                                                    DEBUG_PRINTF("mechacon auth 0x83\n");
 
                                                     if (card_auth(port, slot, 0xF0, 0x05))
                                                     {
-                                                        _printf("card auth 0x05\n");
+                                                        DEBUG_PRINTF("card auth 0x05\n");
 
                                                         if (pol_cal_cmplt())
                                                         {
-                                                            _printf("mechacon auth 0x8f\n");
+                                                            DEBUG_PRINTF("mechacon auth 0x8f\n");
 
                                                             if (mechacon_auth_84(MechaChallenge1, MechaChallenge2))
                                                             {
-                                                                _printf("mechacon auth 0x84\n");
+                                                                DEBUG_PRINTF("mechacon auth 0x84\n");
 
                                                                 if (mechacon_auth_85(&MechaChallenge2[4], MechaChallenge3))
                                                                 {
-                                                                    _printf("mechacon auth 0x85\n");
+                                                                    DEBUG_PRINTF("mechacon auth 0x85\n");
 
                                                                     if (card_auth_write(port, slot, MechaChallenge3, 0xF0, 0x06))
                                                                     {
-                                                                        _printf("card auth 0x06\n");
+                                                                        DEBUG_PRINTF("card auth 0x06\n");
 
                                                                         if (card_auth_write(port, slot, MechaChallenge2, 0xF0, 0x07))
                                                                         {
-                                                                            _printf("card auth 0x07\n");
+                                                                            DEBUG_PRINTF("card auth 0x07\n");
 
                                                                             if (card_auth(port, slot, 0xF0, 0x08))
                                                                             {
-                                                                                _printf("card auth 0x08\n");
+                                                                                DEBUG_PRINTF("card auth 0x08\n");
 
                                                                                 if (card_auth2(port, slot, 0xF0, 0x09))
                                                                                 {
-                                                                                    _printf("card auth 0x09\n");
+                                                                                    DEBUG_PRINTF("card auth 0x09\n");
 
                                                                                     if (card_auth(port, slot, 0xF0, 0x0A))
                                                                                     {
-                                                                                        _printf("card auth 0x0a\n");
+                                                                                        DEBUG_PRINTF("card auth 0x0a\n");
 
                                                                                         if (card_auth_write(port, slot, MechaChallenge1, 0xF0, 0x0B))
                                                                                         {
-                                                                                            _printf("card auth 0x0b\n");
+                                                                                            DEBUG_PRINTF("card auth 0x0b\n");
 
                                                                                             if (card_auth(port, slot, 0xF0, 0x0C))
                                                                                             {
-                                                                                                _printf("card auth 0x0c\n");
+                                                                                                DEBUG_PRINTF("card auth 0x0c\n");
 
                                                                                                 if (card_auth2(port, slot, 0xF0, 0x0D))
                                                                                                 {
-                                                                                                    _printf("card auth 0x0d\n");
+                                                                                                    DEBUG_PRINTF("card auth 0x0d\n");
 
                                                                                                     if (card_auth(port, slot, 0xF0, 0x0E))
                                                                                                     {
-                                                                                                        _printf("card auth 0x0e\n");
+                                                                                                        DEBUG_PRINTF("card auth 0x0e\n");
 
                                                                                                         if (card_auth_read(port, slot, CardResponse1, 0xF0, 0x0F))
                                                                                                         { // Originally, it used the same region as CardNonce. But that might have just been a result of compiler code optimization.
-                                                                                                            _printf("card auth 0x0f\n");
+                                                                                                            DEBUG_PRINTF("card auth 0x0f\n");
 
                                                                                                             if (card_auth(port, slot, 0xF0, 0x10))
                                                                                                             {
-                                                                                                                _printf("card auth 0x10\n");
+                                                                                                                DEBUG_PRINTF("card auth 0x10\n");
 
                                                                                                                 if (card_auth_read(port, slot, CardResponse2, 0xF0, 0x11))
                                                                                                                 {
-                                                                                                                    _printf("card auth 0x11\n");
+                                                                                                                    DEBUG_PRINTF("card auth 0x11\n");
 
                                                                                                                     if (mechacon_auth_86(CardResponse1, CardResponse2))
                                                                                                                     {
-                                                                                                                        _printf("mechacon auth 0x86\n");
+                                                                                                                        DEBUG_PRINTF("mechacon auth 0x86\n");
 
                                                                                                                         if (card_auth(port, slot, 0xF0, 0x12))
                                                                                                                         {
-                                                                                                                            _printf("card auth 0x12\n");
+                                                                                                                            DEBUG_PRINTF("card auth 0x12\n");
 
                                                                                                                             if (card_auth_read(port, slot, CardResponse3, 0xF0, 0x13))
                                                                                                                             {
-                                                                                                                                _printf("card auth 0x13\n");
+                                                                                                                                DEBUG_PRINTF("card auth 0x13\n");
 
                                                                                                                                 if (mechacon_auth_87(CardResponse3))
                                                                                                                                 {
-                                                                                                                                    _printf("mechacon auth 0x87\n");
+                                                                                                                                    DEBUG_PRINTF("mechacon auth 0x87\n");
 
                                                                                                                                     if (pol_cal_cmplt())
                                                                                                                                     {
-                                                                                                                                        _printf("mechacon auth 0x8f\n");
+                                                                                                                                        DEBUG_PRINTF("mechacon auth 0x8f\n");
 
                                                                                                                                         if (card_auth(port, slot, 0xF0, 0x14))
                                                                                                                                         {
-                                                                                                                                            _printf("card auth 0x14\n");
+                                                                                                                                            DEBUG_PRINTF("card auth 0x14\n");
 
                                                                                                                                             if (mechacon_auth_88())
                                                                                                                                             {
-                                                                                                                                                _printf("mechacon auth 0x88\n");
+                                                                                                                                                DEBUG_PRINTF("mechacon auth 0x88\n");
                                                                                                                                                 result = 1;
                                                                                                                                             }
                                                                                                                                             else
@@ -1030,7 +1038,7 @@ int SecrAuthCard(int port, int slot, int cnum)
     }
     else
     {
-        _printf("mcCommand isn't assigned\n");
+        DEBUG_PRINTF("mcCommand isn't assigned\n");
         result = 0;
     }
 
@@ -1063,7 +1071,7 @@ static int secr_set_header(int mode, int cnum, int arg2, void *buffer)
     int result;
 
     HeaderLength = GetHeaderLength(buffer);
-    _printf("header length %d\n", HeaderLength);
+    DEBUG_PRINTF("header length %d\n", HeaderLength);
     if (write_HD_start(mode, cnum, arg2, HeaderLength) != 0)
     {
         while (HeaderLength > 0)
@@ -1082,20 +1090,20 @@ static int secr_set_header(int mode, int cnum, int arg2, void *buffer)
 
             if (result == 0)
             {
-                _printf("secr_set_header: fail write_data\n");
+                DEBUG_PRINTF("secr_set_header: fail write_data\n");
                 goto err_end;
             }
         }
 
         if (pol_cal_cmplt() == 0)
         {
-            _printf("secr_set_header: fail pol_cal_cmplt\n");
+            DEBUG_PRINTF("secr_set_header: fail pol_cal_cmplt\n");
             goto err_end;
         }
     }
     else
     {
-        _printf("secr_set_header: fail write_HD_start\n");
+        DEBUG_PRINTF("secr_set_header: fail write_HD_start\n");
         goto err_end;
     }
 
@@ -1150,7 +1158,7 @@ int SecrDownloadHeader(int port, int slot, void *buffer, SecrBitTable_t *BitTabl
 
     if (GetMcCommandHandler() == NULL)
     {
-        _printf("mcCommand isn't assigned\n");
+        DEBUG_PRINTF("mcCommand isn't assigned\n");
         return 0;
     }
 
@@ -1172,7 +1180,7 @@ int SecrDownloadHeader(int port, int slot, void *buffer, SecrBitTable_t *BitTabl
     }
     else
     {
-        _printf("invalid cnum '%d'\n", cnum);
+        DEBUG_PRINTF("invalid cnum '%d'\n", cnum);
         result = 0;
     }
 
@@ -1271,20 +1279,20 @@ static int card_encrypt(int port, int slot, void *buffer)
 
     if (GetMcCommandHandler() != NULL)
     {
-        _printf("card encrypt start\n");
+        DEBUG_PRINTF("card encrypt start\n");
 
         if (card_auth(port, slot, 0xF2, 0x50))
         {
-            _printf("card encrypt 0x50\n");
+            DEBUG_PRINTF("card encrypt 0x50\n");
             if (card_auth_write(port, slot, buffer, 0xF2, 0x51))
             {
-                _printf("card encrypt 0x51\n");
+                DEBUG_PRINTF("card encrypt 0x51\n");
                 if (card_auth(port, slot, 0xF2, 0x52))
                 {
-                    _printf("card encrypt 0x52\n");
+                    DEBUG_PRINTF("card encrypt 0x52\n");
                     if (card_auth_read(port, slot, buffer, 0xF2, 0x53))
                     {
-                        _printf("card encrypt 0x53\n");
+                        DEBUG_PRINTF("card encrypt 0x53\n");
                         result = 1;
                     }
                     else
@@ -1343,7 +1351,7 @@ void *SecrDownloadFile(int port, int slot, void *buffer)
     void *result;
     unsigned char kbit[16], kcontent[16], icvps2[8];
 
-    _printf("SecrDownloadFile start\n");
+    DEBUG_PRINTF("SecrDownloadFile start\n");
     get_BitTableOffset(buffer); // Doesn't use its return value?
     if (SecrDownloadHeader(port, slot, buffer, &BitTableData, NULL) != 0)
     {
@@ -1356,7 +1364,7 @@ void *SecrDownloadFile(int port, int slot, void *buffer)
                 {
                     if (!SecrDownloadBlock((void *)((unsigned int)buffer + offset), BitTableData.blocks[i].size))
                     {
-                        _printf("SecrDownloadFile: failed\n");
+                        DEBUG_PRINTF("SecrDownloadFile: failed\n");
                         return NULL;
                     }
                 }
@@ -1366,12 +1374,12 @@ void *SecrDownloadFile(int port, int slot, void *buffer)
 
         if (SecrDownloadGetKbit(port, slot, kbit) == 0)
         {
-            _printf("SecrDownloadFile: Cannot get kbit\n");
+            DEBUG_PRINTF("SecrDownloadFile: Cannot get kbit\n");
             return NULL;
         }
         if (SecrDownloadGetKc(port, slot, kcontent) == 0)
         {
-            _printf("SecrDownloadFile: Cannot get kc\n");
+            DEBUG_PRINTF("SecrDownloadFile: Cannot get kc\n");
             return NULL;
         }
 
@@ -1382,7 +1390,7 @@ void *SecrDownloadFile(int port, int slot, void *buffer)
         {
             if (SecrDownloadGetICVPS2(icvps2) == 0)
             {
-                _printf("SecrDownloadFile: Cannot get icvps2\n");
+                DEBUG_PRINTF("SecrDownloadFile: Cannot get icvps2\n");
                 return NULL;
             }
 
@@ -1393,11 +1401,11 @@ void *SecrDownloadFile(int port, int slot, void *buffer)
     }
     else
     {
-        _printf("SecrDownloadFile: Cannot encrypt header\n");
+        DEBUG_PRINTF("SecrDownloadFile: Cannot encrypt header\n");
         return NULL;
     }
 
-    _printf("SecrDownloadFile complete\n");
+    DEBUG_PRINTF("SecrDownloadFile complete\n");
 
     return result;
 }
